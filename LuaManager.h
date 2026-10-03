@@ -5,6 +5,8 @@
 #include "luacode.h"
 #include "lualib.h"
 #include <string>
+
+#include <functional>
 class LuaManager {
     public:
         LuaManager() {
@@ -17,6 +19,7 @@ class LuaManager {
 
         void execute_file(const std::string& directory, const std::string& chunkname = "chunk");
 
+        void push_function(int (*func)(lua_State*),const std::string& name);
     private:
         lua_State* state = nullptr;
 };
