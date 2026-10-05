@@ -7,7 +7,7 @@
 #include <thread>
 #include <chrono>
 int func(lua_State* state) {
-    std::cout << "hello im verity your personal helper friend";
+    std::cout << "test";
     return 0;
 }
 //TODO: make everything else
@@ -19,7 +19,8 @@ int main(int, char**) {
     luamanager.execute_file("C:/Users/Arthur/Desktop/Lazarus/file.luau");
     Entity ent;
 
-    ent.add_component<TestComp>();
+    auto* comp = ent.add_component<TestComp>();
+    comp->print_addr_test();
     ent.add_component<TestCompTwo>();
     
     while (true) {

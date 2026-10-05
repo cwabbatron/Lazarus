@@ -4,12 +4,41 @@
 #include <string>
 #include <any>
 #include <optional>
+
+
+class Entity;
 class Component {
     public:
         ~Component() = default;
-        virtual void update() = 0;
+        virtual void update(Entity& attachment) = 0;
 
+        virtual void on_attach(Entity& attachment) {};
+        virtual void on_deattach(Entity& attachment) {};
 
-       //MASSIVE TODO: implement properties
+        template <typename T>
+        void set_property(const std::string& name,T value) {
+            m_properties[name] = value;
+        }
+
+        template <typename T>
+        T* get_property(const std::string& name) {
+            auto it = m_properties.find(name);
+            if (it == m_properties.end())
+                return nullptr;
+
+            return std::any_cast<T>(&it->second);
+        }
+
+        template <typename T>
+        const T* get_property(const std::string& name) const {
+            auto it = m_properties.find(name);
+            if (it == m_properties.end())
+                return nullptr;
+
+            return std::any_cast<T>(&it->second);
+        }
+
+       
     private:
+        std::unordered_map<std::string,std::any> m_properties;
 };
