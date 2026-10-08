@@ -10,7 +10,7 @@ class TestComp: public Component {
             std::cout << "yo \n";
         };
 
-        void print_addr_test(Entity& attachment) {
+        void print_addr_test() {
             std::cout << "i am at " << this;
         }
     private:

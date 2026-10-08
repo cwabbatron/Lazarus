@@ -5,6 +5,7 @@
 #include <iostream>
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
 {
+    define_globals();
     const char* csource = code.c_str();
 
    
@@ -39,8 +40,52 @@ void LuaManager::execute_file(const std::string &directory, const std::string &c
     execute_string(content_string);
 }
 
+
 void LuaManager::push_function(int (*func)(lua_State *),const std::string& name)
 {
     lua_pushcfunction(state,func,name.c_str());
     lua_setglobal(state,name.c_str());
+}
+
+void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string &file)
+{
+    execute_file(file);
+    lua_getglobal(state,"component");
+    if (lua_istable(state,-1)) {
+        lua_getfield(state,-1,"name");
+        auto name = lua_tostring(state,-1);
+        std::cout << "component name: " << name << "\n";
+
+        
+        lua_getfield(state,-2,"on_update");
+
+        std::cout << lua_type(state,-1);
+        if (lua_isfunction(state,-1)) {
+            
+            
+            auto returnvalue = lua_pcall(state,0,0,0);
+            if (returnvalue != LUA_OK) {
+                std::cout << "error at " << lua_tostring(state,-1);
+            }
+
+        } else {
+            std::cout << "RUNTIME ERROR!! on_update defined in" << file << " is not a function.";
+        }
+
+        
+    } else {
+        std::cout << "RUNTIME ERROR!! component that was returned at " << file << " isnt a table.";
+    }
+}
+
+void LuaManager::define_globals()
+{
+    push_function([](lua_State* state) -> int {
+        auto parameter = lua_tostring(state,-1);
+
+        std::cout << "[LUA]: " << parameter;
+        return 0;
+    },"print");
+
+   
 }

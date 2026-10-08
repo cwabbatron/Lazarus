@@ -15,14 +15,12 @@ int main(int, char**) {
     using namespace std::chrono_literals;
     LuaManager luamanager;
     
-    luamanager.push_function(func,"test_func_from_c");
-    luamanager.execute_file("C:/Users/Arthur/Desktop/Lazarus/file.luau");
-    Entity ent;
-
-    auto* comp = ent.add_component<TestComp>();
-    comp->print_addr_test();
-    ent.add_component<TestCompTwo>();
     
+    
+    Entity ent;
+    
+    luamanager.execute_lua_update_on_entity(ent,"C:/Users/Arthur/Desktop/Lazarus/testComponent.luau");
+
     while (true) {
         ent.update();
         std::this_thread::sleep_for(1000ms);
