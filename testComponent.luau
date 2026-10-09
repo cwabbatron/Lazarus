@@ -9,8 +9,9 @@
 
 component = {
     name = "MyLuaComponent",
-    on_update = function(self,attachment)
-        print("67 test work 100% no virus")
+    on_update = function(self, attachment)
+        print("67 test work 100% no virus \n")
+        print(`i am {self.name} \n`)
     end,
     on_attach = function(self,attachment)
         print("attached")

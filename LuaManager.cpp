@@ -52,20 +52,18 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
     execute_file(file);
     lua_getglobal(state,"component");
     if (lua_istable(state,-1)) {
-        lua_getfield(state,-1,"name");
-        auto name = lua_tostring(state,-1);
-        std::cout << "component name: " << name << "\n";
+        
 
         
         lua_getfield(state,-2,"on_update");
 
         std::cout << lua_type(state,-1);
         if (lua_isfunction(state,-1)) {
-            
-            
-            auto returnvalue = lua_pcall(state,0,0,0);
+            lua_pushvalue(state,-3);
+
+            auto returnvalue = lua_pcall(state,1,0,0);
             if (returnvalue != LUA_OK) {
-                std::cout << "error at " << lua_tostring(state,-1);
+                std::cout << "RUNTIME ERROR!! " << lua_tostring(state,-1);
             }
 
         } else {
@@ -88,4 +86,11 @@ void LuaManager::define_globals()
     },"print");
 
    
+}
+
+void LuaManager::define_types()
+{
+    Entity* ent = static_cast<Entity*>(lua_newuserdata(state,sizeof(Entity)));
+
+
 }
