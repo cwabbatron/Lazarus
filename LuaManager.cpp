@@ -49,30 +49,36 @@ void LuaManager::push_function(int (*func)(lua_State *),const std::string& name)
 
 void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string &file)
 {
+    
     execute_file(file);
     lua_getglobal(state,"component");
     if (lua_istable(state,-1)) {
         
 
         
-        lua_getfield(state,-2,"on_update");
+        lua_getfield(state,-1,"on_update");
 
-        std::cout << lua_type(state,-1);
         if (lua_isfunction(state,-1)) {
-            lua_pushvalue(state,-3);
+            // Reuse the first component table on the stack as the persistent instance.
+            if (lua_istable(state,1)) {
+                lua_pushvalue(state,1);
+            } else {
+                lua_pushvalue(state,-2);
+            }
+            
 
             auto returnvalue = lua_pcall(state,1,0,0);
             if (returnvalue != LUA_OK) {
-                std::cout << "RUNTIME ERROR!! " << lua_tostring(state,-1);
+                std::cout << "RUNTIME ERROR!! " << lua_tostring(state,-1) << std::endl;
             }
 
         } else {
-            std::cout << "RUNTIME ERROR!! on_update defined in" << file << " is not a function.";
+            std::cout << "RUNTIME ERROR!! on_update defined in " << file << " is not a function." << std::endl;
         }
 
         
     } else {
-        std::cout << "RUNTIME ERROR!! component that was returned at " << file << " isnt a table.";
+        std::cout << "RUNTIME ERROR!! component that was returned at " << file << " isnt a table." << std::endl;
     }
 }
 
@@ -81,7 +87,7 @@ void LuaManager::define_globals()
     push_function([](lua_State* state) -> int {
         auto parameter = lua_tostring(state,-1);
 
-        std::cout << "[LUA]: " << parameter;
+        std::cout << "[LUA]: " << parameter << std::endl;
         return 0;
     },"print");
 
