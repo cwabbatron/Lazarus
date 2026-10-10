@@ -20,7 +20,6 @@ int main(int, char**) {
     Entity ent;
     
     luamanager.execute_lua_update_on_entity(ent,"C:/Users/Arthur/Desktop/Lazarus/testComponent.luau");
-    luamanager.execute_lua_update_on_entity(ent,"C:/Users/Arthur/Desktop/Lazarus/testComponent.luau");
 
     while (true) {
         ent.update();

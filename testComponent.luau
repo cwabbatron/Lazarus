@@ -1,11 +1,3 @@
---[[
-    GLOBALS ARE:
-        
-        type entity -> {
-            get_components
-            
-        }
-]]
 
 component = {
     name = "MyLuaComponent",
