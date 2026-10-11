@@ -59,7 +59,7 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
         lua_getfield(state,-1,"on_update");
 
         if (lua_isfunction(state,-1)) {
-            // Reuse the first component table on the stack as the persistent instance.
+            // if we already have the previous table in the stack, use it!!
             if (lua_istable(state,1)) {
                 lua_pushvalue(state,1);
             } else {
@@ -68,10 +68,12 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
             
 
             auto returnvalue = lua_pcall(state,1,0,0);
+
+            
             if (returnvalue != LUA_OK) {
                 std::cout << "RUNTIME ERROR!! " << lua_tostring(state,-1) << std::endl;
             }
-
+            lua_pop(state,-2);
         } else {
             std::cout << "RUNTIME ERROR!! on_update defined in " << file << " is not a function." << std::endl;
         }
