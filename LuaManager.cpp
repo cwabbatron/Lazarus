@@ -4,6 +4,8 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+
+#include <new>
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
 {
     define_globals();
@@ -115,9 +117,28 @@ void LuaManager::define_globals()
    
 }
 
+
+
+
 void LuaManager::define_types()
-{
-    Entity* ent = static_cast<Entity*>(lua_newuserdata(state,sizeof(Entity)));
+{  
 
+    //this might seem complicated but it just creates a zero initialized entity
+    auto Entity_new = [](lua_State* state) -> int {
+        Entity* ent = new (lua_newuserdata(state, sizeof(Entity))) Entity{};
+        return 1;
+    };
 
+    const luaL_Reg entity_lib[] = {
+        {"new",Entity_new},
+        {nullptr,nullptr},
+
+    };
+
+    auto Entity_open = [entity_lib](lua_State* state) -> int {
+        luaL_register(state,"Entity",entity_lib);
+        lua_pop(state,1);
+    };
+
+    
 }

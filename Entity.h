@@ -9,6 +9,9 @@
 #define T_IS_COMPONENT(T) std::is_base_of_v<Component,T>
 class Entity {
     public:
+        Entity() {
+            m_id = -1;
+        }
         Entity(unsigned int id) {
             m_id = id;
         }
@@ -60,7 +63,7 @@ class Entity {
         }
     private:
         std::vector<std::unique_ptr<Component>> m_components;
-        unsigned int m_id;
+        int m_id;
         template <class T>
         bool has_component() {
             static_assert(T_IS_COMPONENT(T), "T must be a Component");
