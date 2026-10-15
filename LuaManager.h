@@ -8,6 +8,7 @@
 
 #include <functional>
 #include "Entity.h"
+#include <unordered_map>
 class LuaManager {
     public:
         LuaManager() {
@@ -15,6 +16,13 @@ class LuaManager {
             luaL_openlibs(state);
         }
 
+        ~LuaManager() {
+            for (const auto& reference : m_component_table_references) {
+                lua_unref(state,reference.second);
+            }
+
+            lua_close(state);
+        }
 
         void execute_string(const std::string& code,const std::string& chunkname = "chunk");
 
@@ -29,4 +37,5 @@ class LuaManager {
         void define_types();
     private:
         lua_State* state = nullptr;
+        std::unordered_map<std::string,int> m_component_table_references;
 };

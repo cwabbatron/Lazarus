@@ -3,6 +3,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <cstring>
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
 {
     define_globals();
@@ -52,35 +53,53 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
     
     execute_file(file);
     lua_getglobal(state,"component");
-    if (lua_istable(state,-1)) {
+
+    if (!lua_istable(state,-1)) {
+        std::cout << "RUNTIME ERROR!! component at " << file << " isnt a table.";
+        return;
+    }
+    int returntype = lua_getfield(state,-1,"name");
+
+    if (returntype == LUA_TNIL || returntype != LUA_TSTRING) {
+        std::cout << "RUNTIME ERROR!! name is nil or isnt a string. ";
+        return;
+    }
+
+    const char* name = lua_tostring(state,-1);
+
+    //if DONT have the reference to the component stored, store it.
+    if (m_component_table_references.find(name) == m_component_table_references.end()) {
+        int ref = lua_ref(state,-2);
+        m_component_table_references.emplace(name,ref);
         
+    } 
 
-        
-        lua_getfield(state,-1,"on_update");
+    
 
-        if (lua_isfunction(state,-1)) {
-            // if we already have the previous table in the stack, use it!!
-            if (lua_istable(state,1)) {
-                lua_pushvalue(state,1);
-            } else {
-                lua_pushvalue(state,-2);
-            }
-            
+    int reference_index = m_component_table_references.at(name);
 
-            auto returnvalue = lua_pcall(state,1,0,0);
+    int reference_type = lua_getref(state,reference_index);
 
-            
-            if (returnvalue != LUA_OK) {
-                std::cout << "RUNTIME ERROR!! " << lua_tostring(state,-1) << std::endl;
-            }
-            lua_pop(state,-2);
-        } else {
-            std::cout << "RUNTIME ERROR!! on_update defined in " << file << " is not a function." << std::endl;
-        }
+    if (reference_type == LUA_TNIL) {
+        std::cout << "RUNTIME ERROR!! reference is nil.";
+        return;
+    }
 
-        
-    } else {
-        std::cout << "RUNTIME ERROR!! component that was returned at " << file << " isnt a table." << std::endl;
+    lua_getfield(state,-1,"on_update");
+
+    if (!lua_isfunction(state,-1)) {
+        std::cout << "RUNTIME ERROR!! on_update isnt a function. ";
+        return;
+    }
+    
+    lua_pushvalue(state,-2);
+    
+    
+
+    int result = lua_pcall(state,1,0,0);
+    if (result != LUA_OK) {
+        std::cout << "RUNTIME ERROR!! execution of on_update wasnt ok :`(";
+        return;
     }
 }
 

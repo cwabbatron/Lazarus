@@ -45,12 +45,12 @@ class Entity {
                 std::remove_if(
                     m_components.begin(),
                     m_components.end(),
-                    [](const std::unique_ptr<Component>& comp){
-                        comp->on_deattach();
+                    [this](const std::unique_ptr<Component>& comp){
+                        comp->on_deattach(*this);
                         return dynamic_cast<const T*>(comp.get()) != nullptr;
                     }
                 )
-            )
+            );
         };
 
         void update() {
