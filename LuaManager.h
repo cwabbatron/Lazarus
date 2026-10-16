@@ -30,9 +30,13 @@ class LuaManager {
 
         void push_function(int (*func)(lua_State*),const std::string& name);
 
+        void push_function_table(int (*func)(lua_State*),const std::string& name);
+        
         void execute_lua_update_on_entity(Entity& entity, const std::string& file);
 
         void define_globals();
+
+        void attach_metatable_to_self(const std::string& component_name);
 
         void define_types();
     private:

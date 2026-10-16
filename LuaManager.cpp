@@ -15,7 +15,7 @@ void LuaManager::execute_string(const std::string &code, const std::string &chun
     size_t bytecodeSize = 0;
     char* bytecode = luau_compile(csource,strlen(csource),NULL,&bytecodeSize);
 
-    int loadfail = luau_load(state,"chunk",bytecode,bytecodeSize,0);
+    int loadfail = luau_load(state,chunkname.c_str(),bytecode,bytecodeSize,0);
     free(bytecode);
     
     if (loadfail) {
@@ -40,7 +40,7 @@ void LuaManager::execute_file(const std::string &directory, const std::string &c
 
     std::string content_string = content_stream.str();
 
-    execute_string(content_string);
+    execute_string(content_string, directory);
 }
 
 
@@ -48,6 +48,12 @@ void LuaManager::push_function(int (*func)(lua_State *),const std::string& name)
 {
     lua_pushcfunction(state,func,name.c_str());
     lua_setglobal(state,name.c_str());
+}
+
+void LuaManager::push_function_table(int (*func)(lua_State *), const std::string &name)
+{
+    lua_pushcfunction(state,func,name.c_str());
+    lua_setfield(state,-1,name.c_str());
 }
 
 void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string &file)
@@ -72,11 +78,12 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
     //if DONT have the reference to the component stored, store it.
     if (m_component_table_references.find(name) == m_component_table_references.end()) {
         int ref = lua_ref(state,-2);
+        
         m_component_table_references.emplace(name,ref);
         
     } 
 
-    
+    attach_metatable_to_self(name);
 
     int reference_index = m_component_table_references.at(name);
 
@@ -100,7 +107,8 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
 
     int result = lua_pcall(state,1,0,0);
     if (result != LUA_OK) {
-        std::cout << "RUNTIME ERROR!! execution of on_update wasnt ok :`(";
+        const char* error = lua_tostring(state,-1);
+        std::cout << "RUNTIME ERROR!! " << error << "\n";
         return;
     }
 }
@@ -116,29 +124,37 @@ void LuaManager::define_globals()
 
    
 }
+int test(lua_State* state) {
+    
+    std::cout << "test !!!! "; 
+    return 1;
+}
 
+void LuaManager::attach_metatable_to_self(const std::string& name)
+{
+    lua_newtable(state); //create metable at -2 and __index table at -1
+    lua_newtable(state);
 
+    lua_pushcfunction(state,test,"test"); // [meta table, __index, test]
+    lua_setfield(state,-2,"test");// [meta table, __index]
 
+    lua_setfield(state,-2,"__index"); // [meta table]
+
+    int ref_index = m_component_table_references.at(name);
+
+    int stack_index = lua_getref(state,ref_index);// [metatable, comp]
+    if (stack_index == LUA_TNIL || stack_index == LUA_REFNIL) {
+        std::cout << "INVALID REFERENCE INDEX!!!!!!!!!!!!!" << std::endl;
+        return;
+    }
+    lua_pushvalue(state,-2); // [metatable, comp, metatable]
+    lua_setmetatable(state,-2); // [metatable,comp]
+    lua_remove(state,-2);
+    
+    
+}
 
 void LuaManager::define_types()
 {  
-
-    //this might seem complicated but it just creates a zero initialized entity
-    auto Entity_new = [](lua_State* state) -> int {
-        Entity* ent = new (lua_newuserdata(state, sizeof(Entity))) Entity{};
-        return 1;
-    };
-
-    const luaL_Reg entity_lib[] = {
-        {"new",Entity_new},
-        {nullptr,nullptr},
-
-    };
-
-    auto Entity_open = [entity_lib](lua_State* state) -> int {
-        luaL_register(state,"Entity",entity_lib);
-        lua_pop(state,1);
-    };
-
     
 }
