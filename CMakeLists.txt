@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(Lazarus VERSION 0.1.0 LANGUAGES C CXX)
+
 add_executable(Lazarus main.cpp LuaManager.cpp)
 
 include(FetchContent)
