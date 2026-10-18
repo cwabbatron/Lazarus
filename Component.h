@@ -10,6 +10,9 @@ class Entity;
 class Component {
     public:
         ~Component() = default;
+        Component(Entity* attachment) {
+            m_attachment = attachment;
+        }
         virtual void update(Entity& attachment) = 0;
 
         virtual void on_attach(Entity& attachment) {};
@@ -41,4 +44,5 @@ class Component {
        
     private:
         std::unordered_map<std::string,std::any> m_properties;
+        Entity* m_attachment = nullptr;
 };

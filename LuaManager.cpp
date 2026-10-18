@@ -132,12 +132,13 @@ int test(lua_State* state) {
 
 void LuaManager::attach_metatable_to_self(const std::string& name)
 {
-    lua_newtable(state); //create metable at -2 and __index table at -1
-    lua_newtable(state);
-
+    /*lua_newtable(state); //create metable at -2 and __index table at -1
+    lua_newtable(state); //[meta table, __index]
+    
     lua_pushcfunction(state,test,"test"); // [meta table, __index, test]
     lua_setfield(state,-2,"test");// [meta table, __index]
 
+    
     lua_setfield(state,-2,"__index"); // [meta table]
 
     int ref_index = m_component_table_references.at(name);
@@ -149,12 +150,24 @@ void LuaManager::attach_metatable_to_self(const std::string& name)
     }
     lua_pushvalue(state,-2); // [metatable, comp, metatable]
     lua_setmetatable(state,-2); // [metatable,comp]
-    lua_remove(state,-2);
-    
-    
+    lua_remove(state,-2);*/
+
+   int ref_index = m_component_table_references.at(name);
+   
+   int returntype = lua_getref(state,ref_index); // [comp]
+
+   if (returntype == LUA_TNIL || returntype == LUA_REFNIL) {
+    std::cout << "INVALID REFERENCE INDEX!!!!!!!!!!!!!" << std::endl;
+        return;
+   }
+
+   lua_pushcfunction(state,test,"test");
+   lua_setfield(state,-2,"test");
+   
 }
 
-void LuaManager::define_types()
-{  
+void LuaManager::convert_entity_to_metatable(Entity &entity)
+{
+    lua_newtable(state);
     
 }

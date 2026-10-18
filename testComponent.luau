@@ -6,6 +6,8 @@ component = {
         print(`i am {self.name} with value {self.value}\n`)
         self.value += 1
         self.test("running test function with dot")
+        
+
         self:test("running test function with colon")
     end,
     on_attach = function(self)
