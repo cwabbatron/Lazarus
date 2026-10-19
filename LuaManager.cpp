@@ -83,7 +83,7 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
         
     } 
 
-    attach_metatable_to_self(name);
+    attach_methods_to_self(name,entity);
 
     int reference_index = m_component_table_references.at(name);
 
@@ -126,32 +126,23 @@ void LuaManager::define_globals()
 }
 int test(lua_State* state) {
     
-    std::cout << "test !!!! "; 
+    std::cout << "Different test!!! \n"; 
     return 1;
 }
 
-void LuaManager::attach_metatable_to_self(const std::string& name)
+//todo finish this
+int get_attachment_lua(lua_State* state) {
+    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    LuaManager* manager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
+
+    manager->convert_entity_to_table(*entity);
+
+    return 1;
+}
+void LuaManager::attach_methods_to_self(const std::string& name,Entity& entity)
 {
-    /*lua_newtable(state); //create metable at -2 and __index table at -1
-    lua_newtable(state); //[meta table, __index]
     
-    lua_pushcfunction(state,test,"test"); // [meta table, __index, test]
-    lua_setfield(state,-2,"test");// [meta table, __index]
-
-    
-    lua_setfield(state,-2,"__index"); // [meta table]
-
-    int ref_index = m_component_table_references.at(name);
-
-    int stack_index = lua_getref(state,ref_index);// [metatable, comp]
-    if (stack_index == LUA_TNIL || stack_index == LUA_REFNIL) {
-        std::cout << "INVALID REFERENCE INDEX!!!!!!!!!!!!!" << std::endl;
-        return;
-    }
-    lua_pushvalue(state,-2); // [metatable, comp, metatable]
-    lua_setmetatable(state,-2); // [metatable,comp]
-    lua_remove(state,-2);*/
-
    int ref_index = m_component_table_references.at(name);
    
    int returntype = lua_getref(state,ref_index); // [comp]
@@ -163,11 +154,36 @@ void LuaManager::attach_metatable_to_self(const std::string& name)
 
    lua_pushcfunction(state,test,"test");
    lua_setfield(state,-2,"test");
+
    
+   lua_pushlightuserdata(state,&entity);
+   lua_pushlightuserdata(state,this);
+   lua_pushcclosure(state,get_attachment_lua,"get_attachment",2); // [comp, ccls]
+
+   lua_setfield(state,-2,"get_attachment"); // [comp]
+
+
 }
 
-void LuaManager::convert_entity_to_metatable(Entity &entity)
+int get_id_lua(lua_State* state) {
+
+    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    if (!entity) {
+        std::cout << "ERROR IN get_id_lua, entity pointer is null.";
+        return 0;
+    }
+
+    lua_pushinteger(state,entity->get_id());
+    return 1;
+}
+void LuaManager::convert_entity_to_table(Entity &entity)
 {
-    lua_newtable(state);
+    lua_newtable(state); // [ent]
+
+    lua_pushlightuserdata(state,&entity); //[ent, userd]
+    lua_pushcclosure(state,get_id_lua,"get_id",1); //[ent, userd, ccls]
     
+    lua_setfield(state,-2,"get_id");
+
 }

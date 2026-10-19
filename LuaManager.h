@@ -36,12 +36,12 @@ class LuaManager {
 
         void define_globals();
 
-        void attach_metatable_to_self(const std::string& component_name);
+        void attach_methods_to_self(const std::string& component_name,Entity& entity);
 
-        
+        void convert_entity_to_table(Entity& entity);
     private:
         
-        void convert_entity_to_metatable(Entity& entity);
+        
         lua_State* state = nullptr;
         std::unordered_map<std::string,int> m_component_table_references;
 };

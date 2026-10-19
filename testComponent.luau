@@ -7,8 +7,10 @@ component = {
         self.value += 1
         self.test("running test function with dot")
         
+        local id = self.get_attachment().get_id()
 
-        self:test("running test function with colon")
+        print(`id is {id}`)
+        
     end,
     on_attach = function(self)
         print("attached")
