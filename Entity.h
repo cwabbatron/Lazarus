@@ -29,7 +29,7 @@ class Entity {
             if (m_components.size() + 1 > MAX_COMPONENTS) {
                 return nullptr;
             }
-            std::unique_ptr<T> comp = std::make_unique<T>();
+            std::unique_ptr<T> comp = std::make_unique<T>(this);
             comp->on_attach(*this);
             T* ptr = comp.get();
             m_components.push_back(std::move(comp));
@@ -56,14 +56,13 @@ class Entity {
             );
         };
 
+
         void update() {
             for (auto& comp : m_components) {
                 comp->update(*this);
             }
         }
-    private:
-        std::vector<std::unique_ptr<Component>> m_components;
-        int m_id;
+        
         template <class T>
         bool has_component() {
             static_assert(T_IS_COMPONENT(T), "T must be a Component");
@@ -77,5 +76,21 @@ class Entity {
 
             return it != m_components.end() ? true : false;
         };
+
+        bool has_component_name(const std::string& name) {
+            std::vector<std::unique_ptr<Component>>::iterator it = std::find_if(
+                m_components.begin(),
+                m_components.end(),
+                [name](const std::unique_ptr<Component>& comp) {
+                    return comp->get_name() == name;
+                }
+            );
+
+            return it != m_components.end() ? true : false;
+        }
+    private:
+        std::vector<std::unique_ptr<Component>> m_components;
+        int m_id;
+       
         
 };

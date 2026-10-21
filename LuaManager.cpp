@@ -5,7 +5,6 @@
 #include <iostream>
 #include <cstring>
 
-#include <new>
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
 {
     define_globals();
@@ -177,13 +176,35 @@ int get_id_lua(lua_State* state) {
     lua_pushinteger(state,entity->get_id());
     return 1;
 }
+
+int has_component_lua(lua_State* state) {
+    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    const char* compname = lua_tostring(state,-1);
+    if (!entity) {
+        std::cout << "entity is null has component lua";
+        return 0;
+    }
+
+    lua_pushboolean(state,entity->has_component_name(compname) ? 1 : 0);
+    return 1;
+}
+
+
 void LuaManager::convert_entity_to_table(Entity &entity)
 {
     lua_newtable(state); // [ent]
 
     lua_pushlightuserdata(state,&entity); //[ent, userd]
-    lua_pushcclosure(state,get_id_lua,"get_id",1); //[ent, userd, ccls]
+    lua_pushcclosure(state,get_id_lua,"get_id",1); //[ent, ccls]
     
-    lua_setfield(state,-2,"get_id");
 
+    lua_setfield(state,-2,"get_id"); //[ent]
+
+    lua_pushlightuserdata(state,&entity);
+    lua_pushcclosure(state,has_component_lua,"has_component",1);
+
+    lua_setfield(state,-2,"has_component"); //[ent]
+
+    
 }

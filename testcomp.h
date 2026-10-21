@@ -13,5 +13,9 @@ class TestComp: public Component {
         void print_addr_test() {
             std::cout << "i am at " << this;
         }
+
+        const std::string get_name() const override {
+            return "TestComponent";
+        }
     private:
 };

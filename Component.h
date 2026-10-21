@@ -10,7 +10,7 @@ class Entity;
 class Component {
     public:
         ~Component() = default;
-        Component(Entity* attachment) {
+        explicit Component(Entity* attachment) {
             m_attachment = attachment;
         }
         virtual void update(Entity& attachment) = 0;
@@ -41,8 +41,12 @@ class Component {
             return std::any_cast<T>(&it->second);
         }
 
-       
+        virtual const std::string get_name() const {
+            
+            return "abstractComponent";
+        };
     private:
         std::unordered_map<std::string,std::any> m_properties;
         Entity* m_attachment = nullptr;
+        
 };

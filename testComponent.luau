@@ -3,14 +3,15 @@ component = {
     name = "MyLuaComponent",
     value = 0,
     on_update = function(self)
-        print(`i am {self.name} with value {self.value}\n`)
-        self.value += 1
-        self.test("running test function with dot")
+        print("Test component running")
         
-        local id = self.get_attachment().get_id()
+        
+        local attachment = self.get_attachment()
 
-        print(`id is {id}`)
+        print(`id is {attachment.get_id()}`)
         
+        print(`do we have nameComponent {attachment.has_component("NameComponent")}`)
+        print(`do we have nonExistentComponet? {attachment.has_component("nonExistantComponent")}`)
     end,
     on_attach = function(self)
         print("attached")
