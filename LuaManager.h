@@ -7,8 +7,8 @@
 #include <string>
 
 #include <functional>
-#include "Entity.h"
 #include <unordered_map>
+class Entity;
 class LuaManager {
     public:
         LuaManager() {

@@ -1,5 +1,6 @@
 #include "LuaManager.h"
 
+#include "Entity.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>

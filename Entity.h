@@ -1,12 +1,18 @@
 #pragma once
 
+#include <algorithm>
+#include <string>
 #include <vector>
 
 #include "Component.h"
+
 #include <memory>
 #include <type_traits>
 #define MAX_COMPONENTS 128
 #define T_IS_COMPONENT(T) std::is_base_of_v<Component,T>
+
+class LuaManager;
+
 class Entity {
     public:
         Entity() {
@@ -35,7 +41,12 @@ class Entity {
             m_components.push_back(std::move(comp));
             return ptr;
         }
-
+        //TODO: add checks for existing component and max components
+        //and add on_attach function call
+        void add_lua_component(const std::string& file) {
+            m_lua_components.push_back(file);
+        }
+        
         template <class T>
         void remove_component() {
             static_assert(T_IS_COMPONENT(T), "T must be a Component");
@@ -57,11 +68,7 @@ class Entity {
         };
 
 
-        void update() {
-            for (auto& comp : m_components) {
-                comp->update(*this);
-            }
-        }
+        void update(LuaManager& luamanager);
         
         template <class T>
         bool has_component() {
@@ -76,7 +83,17 @@ class Entity {
 
             return it != m_components.end() ? true : false;
         };
+        bool has_lua_component(const std::string& component_name) {
+            std::vector<std::string>::iterator it = std::find_if(
+                m_lua_components.begin(),
+                m_lua_components.end(),
+                [component_name](const std::string& component_file){
+                    return component_file == component_name;
+                }
+            );
 
+            return it != m_lua_components.end() ? true : false;
+        }
         bool has_component_name(const std::string& name) {
             std::vector<std::unique_ptr<Component>>::iterator it = std::find_if(
                 m_components.begin(),
@@ -90,6 +107,7 @@ class Entity {
         }
     private:
         std::vector<std::unique_ptr<Component>> m_components;
+        std::vector<std::string> m_lua_components;
         int m_id;
        
         

@@ -17,10 +17,13 @@ int main(int, char**) {
 
     auto* ent = entmanager.add_entity();
     ent->add_component<NameComponent>();
+    //TODO: add .add_component .remove_component etc methods
+    //TODO: add EntityManager keyword to scripts
+    ent->add_lua_component("/home/arthur/projs/Lazarus/testComponent.luau");
+
     
-    luamanager.execute_lua_update_on_entity(*ent,"/home/arthur/projs/Lazarus/testComponent.luau");
     while (true) {
-        ent->update();
+        ent->update(luamanager);
         std::cout << "loop running" << std::endl;
         std::this_thread::sleep_for(200ms);
     }

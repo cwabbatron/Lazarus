@@ -9,7 +9,7 @@
 class Entity;
 class Component {
     public:
-        ~Component() = default;
+        virtual ~Component() = default;
         explicit Component(Entity* attachment) {
             m_attachment = attachment;
         }
