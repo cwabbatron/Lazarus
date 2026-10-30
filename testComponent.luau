@@ -4,14 +4,13 @@ component = {
     value = 0,
     on_update = function(self)
         print("Test component running")
-        
-        
         local attachment = self.get_attachment()
-
-        print(`id is {attachment.get_id()}`)
-        
-        print(`do we have nameComponent {attachment.has_component("NameComponent")}`)
-        print(`do we have nonExistentComponet? {attachment.has_component("nonExistantComponent")}`)
+        if not attachment:has_component("TestComponentTwo") then
+            attachment:add_component("TestComponentTwo")
+            print("added component")
+        else
+            print("We already have TestComponentTwo!!!")
+        end
     end,
     on_attach = function(self)
         print("attached")

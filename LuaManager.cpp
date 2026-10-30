@@ -6,6 +6,11 @@
 #include <iostream>
 #include <cstring>
 
+#include "nameComponent.h"
+#include "TestComponent2.h"
+
+#include "LuaMethodDefinitions.h"
+#define COMPONENT_REGISTER(NAME) m_component_registry[#NAME] = []{ return std::make_unique<NAME>(); };
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
 {
     define_globals();
@@ -86,7 +91,7 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
     attach_methods_to_self(name,entity);
 
     int reference_index = m_component_table_references.at(name);
-
+    std::cout << "get reference index \n";
     int reference_type = lua_getref(state,reference_index);
 
     if (reference_type == LUA_TNIL) {
@@ -131,18 +136,11 @@ int test(lua_State* state) {
 }
 
 //todo finish this
-int get_attachment_lua(lua_State* state) {
-    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
 
-    LuaManager* manager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
 
-    manager->convert_entity_to_table(*entity);
-
-    return 1;
-}
 void LuaManager::attach_methods_to_self(const std::string& name,Entity& entity)
 {
-    
+    std::cout << "attach methods to self \n";
    int ref_index = m_component_table_references.at(name);
    
    int returntype = lua_getref(state,ref_index); // [comp]
@@ -165,31 +163,9 @@ void LuaManager::attach_methods_to_self(const std::string& name,Entity& entity)
 
 }
 
-int get_id_lua(lua_State* state) {
 
-    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
 
-    if (!entity) {
-        std::cout << "ERROR IN get_id_lua, entity pointer is null.";
-        return 0;
-    }
 
-    lua_pushinteger(state,entity->get_id());
-    return 1;
-}
-
-int has_component_lua(lua_State* state) {
-    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
-
-    const char* compname = lua_tostring(state,-1);
-    if (!entity) {
-        std::cout << "entity is null has component lua";
-        return 0;
-    }
-
-    lua_pushboolean(state,entity->has_component_name(compname) ? 1 : 0);
-    return 1;
-}
 
 
 void LuaManager::convert_entity_to_table(Entity &entity)
@@ -207,5 +183,22 @@ void LuaManager::convert_entity_to_table(Entity &entity)
 
     lua_setfield(state,-2,"has_component"); //[ent]
 
-    
+    lua_pushlightuserdata(state,&entity);
+    lua_pushlightuserdata(state,this);
+    lua_pushcclosure(state,add_component_lua,"add_component",2);
+
+    lua_setfield(state,-2,"add_component");
+    //TODO: add more methods
+}
+
+void LuaManager::fill_registry()
+{
+    COMPONENT_REGISTER(NameComponent);
+    COMPONENT_REGISTER(TestComponentTwo);
+}
+
+std::function<std::unique_ptr<Component>()> LuaManager::get_component_from_registry(const std::string &component_name)
+{
+    std::cout << "registry GET \n";
+    return m_component_registry.at(component_name);
 }

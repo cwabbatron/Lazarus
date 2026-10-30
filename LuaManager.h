@@ -6,14 +6,19 @@
 #include "lualib.h"
 #include <string>
 
+#include "Component.h"
+
 #include <functional>
 #include <unordered_map>
+#include <memory>
 class Entity;
 class LuaManager {
     public:
         LuaManager() {
             state = luaL_newstate();
             luaL_openlibs(state);
+
+            fill_registry();
         }
 
         ~LuaManager() {
@@ -39,9 +44,17 @@ class LuaManager {
         void attach_methods_to_self(const std::string& component_name,Entity& entity);
 
         void convert_entity_to_table(Entity& entity);
+
+        void fill_registry();
+
+        std::function<std::unique_ptr<Component>()> get_component_from_registry(const std::string& component_name);
+        std::unordered_map<std::string,std::function<std::unique_ptr<Component>()>>& get_registry() {
+            return m_component_registry;
+        }
     private:
         
         
         lua_State* state = nullptr;
         std::unordered_map<std::string,int> m_component_table_references;
+        std::unordered_map<std::string,std::function<std::unique_ptr<Component>()>> m_component_registry;
 };

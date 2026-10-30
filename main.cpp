@@ -6,7 +6,7 @@
 #include "Entity.h"
 
 #include "nameComponent.h"
-
+#include "TestComponent2.h"
 #include <thread>
 #include <chrono>
 int main(int, char**) {
@@ -16,16 +16,15 @@ int main(int, char**) {
     EntityManager entmanager;
 
     auto* ent = entmanager.add_entity();
-    ent->add_component<NameComponent>();
     //TODO: add .add_component .remove_component etc methods
     //TODO: add EntityManager keyword to scripts
     ent->add_lua_component("/home/arthur/projs/Lazarus/testComponent.luau");
-
+    
     
     while (true) {
         ent->update(luamanager);
-        std::cout << "loop running" << std::endl;
-        std::this_thread::sleep_for(200ms);
+        
+        std::this_thread::sleep_for(1000ms);
     }
     std::cout << "Test, compiled on vscode";
 }

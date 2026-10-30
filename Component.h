@@ -10,9 +10,8 @@ class Entity;
 class Component {
     public:
         virtual ~Component() = default;
-        explicit Component(Entity* attachment) {
-            m_attachment = attachment;
-        }
+        Component(Entity* attachment) : m_attachment(attachment) {};
+        Component() : m_attachment(nullptr) {};
         virtual void update(Entity& attachment) = 0;
 
         virtual void on_attach(Entity& attachment) {};
