@@ -123,7 +123,7 @@ void LuaManager::define_globals()
     push_function([](lua_State* state) -> int {
         auto parameter = lua_tostring(state,-1);
 
-        std::cout << "[LUA]: " << parameter << std::endl;
+        std::cout << "\e[0;94m[LUA]: " << parameter << "\e[0m" << std::endl;
         return 0;
     },"print");
 
