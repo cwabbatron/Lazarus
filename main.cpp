@@ -16,7 +16,7 @@ int main(int, char**) {
     EntityManager entmanager;
 
     auto* ent = entmanager.add_entity();
-    //TODO: add .add_component .remove_component etc methods
+    ent->add_component<NameComponent>();
     //TODO: add EntityManager keyword to scripts
     ent->add_lua_component("/home/arthur/projs/Lazarus/testComponent.luau");
     

@@ -13,6 +13,10 @@
 #define MAX_COMPONENTS 128
 #define T_IS_COMPONENT(T) std::is_base_of_v<Component,T>
 
+
+// MASSIVE TODO: make lua components be able to erase and add each other
+//for example you cannot erase a lua component
+
 class LuaManager;
 
 class Entity {
@@ -43,6 +47,7 @@ class Entity {
             m_components.push_back(std::move(comp));
             return ptr;
         }
+
         //NOTE: this will invalidate the pointer (pointer will become nullptr) passed since this function moves it to the vector!
         void add_component_unique_ptr(std::unique_ptr<Component> component) {
             component->on_attach(*this);
@@ -115,6 +120,8 @@ class Entity {
 
             return it != m_components.end() ? true : false;
         }
+
+        void remove_component_name(const std::string& name);
     private:
         std::vector<std::unique_ptr<Component>> m_components;
         std::vector<std::string> m_lua_components;

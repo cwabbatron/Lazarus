@@ -91,7 +91,7 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
     attach_methods_to_self(name,entity);
 
     int reference_index = m_component_table_references.at(name);
-    std::cout << "get reference index \n";
+    
     int reference_type = lua_getref(state,reference_index);
 
     if (reference_type == LUA_TNIL) {
@@ -140,7 +140,6 @@ int test(lua_State* state) {
 
 void LuaManager::attach_methods_to_self(const std::string& name,Entity& entity)
 {
-    std::cout << "attach methods to self \n";
    int ref_index = m_component_table_references.at(name);
    
    int returntype = lua_getref(state,ref_index); // [comp]
@@ -188,7 +187,11 @@ void LuaManager::convert_entity_to_table(Entity &entity)
     lua_pushcclosure(state,add_component_lua,"add_component",2);
 
     lua_setfield(state,-2,"add_component");
-    //TODO: add more methods
+    
+    lua_pushlightuserdata(state,&entity);
+    lua_pushcclosure(state,remove_component_lua,"remove_component",1);
+
+    lua_setfield(state,-2,"remove_component");
 }
 
 void LuaManager::fill_registry()

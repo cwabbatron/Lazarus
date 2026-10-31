@@ -65,3 +65,20 @@ int add_component_lua(lua_State* state) {
 
     return 0;
 }
+
+int remove_component_lua(lua_State* state) {
+    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    
+
+    if (!entity) {
+        std::cout << "entity is null in remove_component_lua";
+        return 0;
+    };
+
+    const char* desired_component = lua_tostring(state,-1);
+
+    entity->remove_component_name(desired_component);
+
+    return 0;
+}

@@ -5,11 +5,13 @@ component = {
     on_update = function(self)
         print("Test component running")
         local attachment = self.get_attachment()
-        if not attachment:has_component("TestComponentTwo") then
-            attachment:add_component("TestComponentTwo")
-            print("added component")
+        
+        if attachment:has_component("NameComponent") then
+            print("removed")
+            attachment:remove_component("NameComponent")
         else
-            print("We already have TestComponentTwo!!!")
+            print("did not remove")
+            
         end
     end,
     on_attach = function(self)
