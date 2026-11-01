@@ -61,7 +61,7 @@ int add_component_lua(lua_State* state) {
     }
 
     //grab the factory function from the registry and call it to get the unique pointer
-    entity->add_component_registry(manager->get_registry(),desired_component);
+    entity->add_component_name(manager->get_registry(),desired_component);
 
     return 0;
 }

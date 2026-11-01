@@ -12,11 +12,13 @@ class Component {
         virtual ~Component() = default;
         Component(Entity* attachment) : m_attachment(attachment) {};
         Component() : m_attachment(nullptr) {};
+        
         virtual void update(Entity& attachment) = 0;
 
         virtual void on_attach(Entity& attachment) {};
         virtual void on_deattach(Entity& attachment) {};
 
+        #pragma region Properties
         template <typename T>
         void set_property(const std::string& name,T value) {
             m_properties[name] = value;
@@ -39,7 +41,7 @@ class Component {
 
             return std::any_cast<T>(&it->second);
         }
-
+        #pragma endregion
         virtual const std::string get_name() const {
             
             return "abstractComponent";

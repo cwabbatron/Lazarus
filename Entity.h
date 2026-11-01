@@ -29,6 +29,8 @@ class Entity {
         }
 
         int get_id() const { return m_id; };
+
+        #pragma region normal functions
         //build a new component of type T into m_components
         template <class T>
         T* add_component() {
@@ -54,13 +56,9 @@ class Entity {
             m_components.push_back(std::move(component));
         }
 
-        void add_component_registry(std::unordered_map<std::string,std::function<std::unique_ptr<Component>()>>& registry, const std::string& name);
+        
 
-        //TODO: add checks for existing component and max components
-        //and add on_attach function call
-        void add_lua_component(const std::string& file) {
-            m_lua_components.push_back(file);
-        }
+        
         
         template <class T>
         void remove_component() {
@@ -83,7 +81,7 @@ class Entity {
         };
 
 
-        void update(LuaManager& luamanager);
+        
         
         template <class T>
         bool has_component() {
@@ -98,6 +96,18 @@ class Entity {
 
             return it != m_components.end() ? true : false;
         };
+        #pragma endregion
+
+        
+        #pragma region Lua component functions
+
+        void add_lua_component(const std::string& file) {
+            if (!has_lua_component(file)) {
+                m_lua_components.push_back(file);
+            }
+            
+        }
+
         bool has_lua_component(const std::string& component_name) {
             std::vector<std::string>::iterator it = std::find_if(
                 m_lua_components.begin(),
@@ -109,6 +119,29 @@ class Entity {
 
             return it != m_lua_components.end() ? true : false;
         }
+
+        
+        void remove_lua_component(const std::string& file) {
+            m_lua_components.erase(
+                std::remove_if(
+                    m_lua_components.begin(),
+                    m_lua_components.end(),
+                    [file](const std::string& lua_component_file){
+                        return file == lua_component_file;
+                    }
+                )
+            );
+        }
+
+        #pragma endregion
+        
+
+        #pragma region Component functions that in take in name argument
+
+        void remove_component_name(const std::string& name);
+
+        void add_component_name(std::unordered_map<std::string,std::function<std::unique_ptr<Component>()>>& registry, const std::string& name);
+
         bool has_component_name(const std::string& name) {
             std::vector<std::unique_ptr<Component>>::iterator it = std::find_if(
                 m_components.begin(),
@@ -120,8 +153,9 @@ class Entity {
 
             return it != m_components.end() ? true : false;
         }
-
-        void remove_component_name(const std::string& name);
+        #pragma endregion
+        
+        void update(LuaManager& luamanager);
     private:
         std::vector<std::unique_ptr<Component>> m_components;
         std::vector<std::string> m_lua_components;

@@ -32,10 +32,6 @@ class LuaManager {
         void execute_string(const std::string& code,const std::string& chunkname = "chunk");
 
         void execute_file(const std::string& directory, const std::string& chunkname = "chunk");
-
-        void push_function(int (*func)(lua_State*),const std::string& name);
-
-        void push_function_table(int (*func)(lua_State*),const std::string& name);
         
         void execute_lua_update_on_entity(Entity& entity, const std::string& file);
 
@@ -48,6 +44,7 @@ class LuaManager {
         void fill_registry();
 
         std::function<std::unique_ptr<Component>()> get_component_from_registry(const std::string& component_name);
+
         std::unordered_map<std::string,std::function<std::unique_ptr<Component>()>>& get_registry() {
             return m_component_registry;
         }

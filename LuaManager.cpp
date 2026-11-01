@@ -11,6 +11,9 @@
 
 #include "LuaMethodDefinitions.h"
 #define COMPONENT_REGISTER(NAME) m_component_registry[#NAME] = []{ return std::make_unique<NAME>(); };
+
+#pragma region Lua Execution
+
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
 {
     define_globals();
@@ -49,17 +52,6 @@ void LuaManager::execute_file(const std::string &directory, const std::string &c
 }
 
 
-void LuaManager::push_function(int (*func)(lua_State *),const std::string& name)
-{
-    lua_pushcfunction(state,func,name.c_str());
-    lua_setglobal(state,name.c_str());
-}
-
-void LuaManager::push_function_table(int (*func)(lua_State *), const std::string &name)
-{
-    lua_pushcfunction(state,func,name.c_str());
-    lua_setfield(state,-1,name.c_str());
-}
 
 void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string &file)
 {
@@ -117,26 +109,32 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
         return;
     }
 }
+#pragma endregion
 
+#pragma region Definitions
+
+int print(lua_State* state) {
+    auto parameter = lua_tostring(state,-1);
+
+    std::cout << "\e[0;94m[LUA]: " << parameter << "\e[0m" << std::endl;
+    return 0;
+}
 void LuaManager::define_globals()
 {
-    push_function([](lua_State* state) -> int {
-        auto parameter = lua_tostring(state,-1);
-
-        std::cout << "\e[0;94m[LUA]: " << parameter << "\e[0m" << std::endl;
-        return 0;
-    },"print");
-
+    lua_pushcfunction(state,print,"print");
+    lua_setglobal(state,"print");
    
 }
-int test(lua_State* state) {
-    
-    std::cout << "Different test!!! \n"; 
-    return 1;
+
+void LuaManager::fill_registry()
+{
+    COMPONENT_REGISTER(NameComponent);
+    COMPONENT_REGISTER(TestComponentTwo);
 }
 
-//todo finish this
+#pragma endregion
 
+#pragma region Method attachment and entity conversion
 
 void LuaManager::attach_methods_to_self(const std::string& name,Entity& entity)
 {
@@ -149,8 +147,7 @@ void LuaManager::attach_methods_to_self(const std::string& name,Entity& entity)
         return;
    }
 
-   lua_pushcfunction(state,test,"test");
-   lua_setfield(state,-2,"test");
+   
 
    
    lua_pushlightuserdata(state,&entity);
@@ -161,10 +158,6 @@ void LuaManager::attach_methods_to_self(const std::string& name,Entity& entity)
 
 
 }
-
-
-
-
 
 
 void LuaManager::convert_entity_to_table(Entity &entity)
@@ -194,14 +187,12 @@ void LuaManager::convert_entity_to_table(Entity &entity)
     lua_setfield(state,-2,"remove_component");
 }
 
-void LuaManager::fill_registry()
-{
-    COMPONENT_REGISTER(NameComponent);
-    COMPONENT_REGISTER(TestComponentTwo);
-}
+#pragma endregion
 
+#pragma region other functions
 std::function<std::unique_ptr<Component>()> LuaManager::get_component_from_registry(const std::string &component_name)
 {
     std::cout << "registry GET \n";
     return m_component_registry.at(component_name);
 }
+#pragma endregion
