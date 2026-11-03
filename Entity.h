@@ -108,12 +108,12 @@ class Entity {
             
         }
 
-        bool has_lua_component(const std::string& component_name) {
+        bool has_lua_component(const std::string& file) {
             std::vector<std::string>::iterator it = std::find_if(
                 m_lua_components.begin(),
                 m_lua_components.end(),
-                [component_name](const std::string& component_file){
-                    return component_file == component_name;
+                [file](const std::string& component_file){
+                    return component_file == file;
                 }
             );
 

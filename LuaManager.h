@@ -48,10 +48,13 @@ class LuaManager {
         std::unordered_map<std::string,std::function<std::unique_ptr<Component>()>>& get_registry() {
             return m_component_registry;
         }
+
+        std::string get_file_from_name_registry(const std::string& name);
     private:
         
         
         lua_State* state = nullptr;
         std::unordered_map<std::string,int> m_component_table_references;
         std::unordered_map<std::string,std::function<std::unique_ptr<Component>()>> m_component_registry;
+        std::unordered_map<std::string,std::string> m_component_name_registry;
 };

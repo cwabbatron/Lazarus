@@ -30,7 +30,7 @@ int get_id_lua(lua_State* state) {
     return 1;
 }
 
-int has_component_lua(lua_State* state) {
+int has_component_lua_cpp(lua_State* state) {
     Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
 
     const char* compname = lua_tostring(state,-1);
@@ -43,7 +43,24 @@ int has_component_lua(lua_State* state) {
     return 1;
 }
 
-int add_component_lua(lua_State* state) {
+int has_component_lua_lua(lua_State* state) {
+    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    LuaManager* manager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
+
+    const char* compname = lua_tostring(state,-1);
+
+    if (!entity) {
+        std::cout << "entity is null in has component lua lua";
+        return 0;
+    }
+
+    std::string file = manager->get_file_from_name_registry(compname);
+    
+    lua_pushboolean(state,entity->has_lua_component(file));
+    return 1;
+}
+int add_component_lua_cpp(lua_State* state) {
     Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
 
     LuaManager* manager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
@@ -60,13 +77,13 @@ int add_component_lua(lua_State* state) {
         return 0;
     }
 
-    //grab the factory function from the registry and call it to get the unique pointer
+    
     entity->add_component_name(manager->get_registry(),desired_component);
 
     return 0;
 }
 
-int remove_component_lua(lua_State* state) {
+int remove_component_lua_cpp(lua_State* state) {
     Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
 
     

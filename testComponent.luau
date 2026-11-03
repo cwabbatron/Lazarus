@@ -3,15 +3,12 @@ component = {
     name = "MyLuaComponent",
     value = 0,
     on_update = function(self)
-        print("Test component running")
+        print("MyLuaComponent update")
         local attachment = self.get_attachment()
-        
-        if attachment:has_component("NameComponent") then
-            print("removed")
-            attachment:remove_component("NameComponent")
+        if attachment:has_component_lua("SecondaryComponent") then
+            print("it worked :)")
         else
-            print("did not remove")
-            
+            print("NOOO COMPONENT WHAT WHAT WHAT")
         end
     end,
     on_attach = function(self)

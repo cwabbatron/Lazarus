@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include <sstream>
 #include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <cstring>
 
@@ -57,6 +58,10 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
 {
     
     execute_file(file);
+
+    
+    
+
     lua_getglobal(state,"component");
 
     if (!lua_istable(state,-1)) {
@@ -71,6 +76,12 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
     }
 
     const char* name = lua_tostring(state,-1);
+
+
+
+    if (m_component_name_registry.find(name) == m_component_name_registry.end()) {
+        m_component_name_registry.emplace(name,file);
+    }
 
     //if DONT have the reference to the component stored, store it.
     if (m_component_table_references.find(name) == m_component_table_references.end()) {
@@ -169,22 +180,35 @@ void LuaManager::convert_entity_to_table(Entity &entity)
     
 
     lua_setfield(state,-2,"get_id"); //[ent]
+    #pragma region cpp component methods
 
     lua_pushlightuserdata(state,&entity);
-    lua_pushcclosure(state,has_component_lua,"has_component",1);
+    lua_pushcclosure(state,has_component_lua_cpp,"has_component_cpp",1);
 
-    lua_setfield(state,-2,"has_component"); //[ent]
+    lua_setfield(state,-2,"has_component_cpp"); //[ent]
 
     lua_pushlightuserdata(state,&entity);
     lua_pushlightuserdata(state,this);
-    lua_pushcclosure(state,add_component_lua,"add_component",2);
+    lua_pushcclosure(state,add_component_lua_cpp,"add_component_cpp",2);
 
-    lua_setfield(state,-2,"add_component");
+    lua_setfield(state,-2,"add_component_cpp");
     
     lua_pushlightuserdata(state,&entity);
-    lua_pushcclosure(state,remove_component_lua,"remove_component",1);
+    lua_pushcclosure(state,remove_component_lua_cpp,"remove_component_cpp",1);
 
-    lua_setfield(state,-2,"remove_component");
+    lua_setfield(state,-2,"remove_component_cpp");
+
+    #pragma endregion
+
+    #pragma region lua component methods
+
+    lua_pushlightuserdata(state,&entity);
+    lua_pushlightuserdata(state,this);
+
+    lua_pushcclosure(state,has_component_lua_lua,"has_component_lua_lua",2);
+
+    lua_setfield(state,-2,"has_component_lua");
+    #pragma endregion
 }
 
 #pragma endregion
@@ -192,7 +216,34 @@ void LuaManager::convert_entity_to_table(Entity &entity)
 #pragma region other functions
 std::function<std::unique_ptr<Component>()> LuaManager::get_component_from_registry(const std::string &component_name)
 {
-    std::cout << "registry GET \n";
+    
     return m_component_registry.at(component_name);
+}
+
+void print_name_registry(const std::unordered_map<std::string,std::string>& registry) {
+    
+
+    std::for_each(
+        registry.begin(),
+        registry.end(),
+        [](const std::pair<std::string,std::string>& el){
+            std::cout << el.first << " -> " << el.second << std::endl << std::endl;
+        }
+    );
+}
+std::string LuaManager::get_file_from_name_registry(const std::string &name)
+{
+    try {
+        std::cout << "called!!!" << std::endl;
+        print_name_registry(m_component_name_registry);
+        std::cout <<  "size:" <<m_component_name_registry.size() << std::endl;
+        return m_component_name_registry.at(name);
+    } catch (const std::out_of_range& error) {
+        std::cout << "OUT OF RANGE ERROR!!!!!!!!! " << error.what() << std::endl;
+        std::cout <<  "size:" <<m_component_name_registry.size() << std::endl;
+        auto str = new std::string("");
+        return *str;
+    }
+    
 }
 #pragma endregion
