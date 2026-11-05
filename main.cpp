@@ -17,8 +17,7 @@ int main(int, char**) {
 
     auto* ent = entmanager.add_entity();
     
-    ent->add_lua_component("/home/arthur/projs/Lazarus/testComponent.luau");
-    ent->add_lua_component("/home/arthur/projs/Lazarus/SecondaryComponent.luau");
+    ent->add_lua_component("/home/arthur/projs/Lazarus/scripts/MyLuaComponent.luau");
     
     while (true) {
         ent->update(luamanager);

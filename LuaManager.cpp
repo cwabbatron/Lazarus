@@ -12,7 +12,8 @@
 
 #include "LuaMethodDefinitions.h"
 #define COMPONENT_REGISTER(NAME) m_component_registry[#NAME] = []{ return std::make_unique<NAME>(); };
-
+//TODO: not hardcode this
+#define LUA_COMPONENT_REGISTER(NAME) add_to_component_name_registry(NAME,std::string("/home/arthur/projs/Lazarus/scripts/") + NAME);
 #pragma region Lua Execution
 
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
@@ -79,10 +80,7 @@ void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string 
 
 
 
-    if (m_component_name_registry.find(name) == m_component_name_registry.end()) {
-        m_component_name_registry.emplace(name,file);
-    }
-
+   
     //if DONT have the reference to the component stored, store it.
     if (m_component_table_references.find(name) == m_component_table_references.end()) {
         int ref = lua_ref(state,-2);
@@ -141,6 +139,9 @@ void LuaManager::fill_registry()
 {
     COMPONENT_REGISTER(NameComponent);
     COMPONENT_REGISTER(TestComponentTwo);
+
+    add_to_component_name_registry("SecondaryComponent");
+
 }
 
 #pragma endregion
@@ -208,6 +209,14 @@ void LuaManager::convert_entity_to_table(Entity &entity)
     lua_pushcclosure(state,has_component_lua_lua,"has_component_lua_lua",2);
 
     lua_setfield(state,-2,"has_component_lua");
+
+    lua_pushlightuserdata(state,&entity);
+    lua_pushlightuserdata(state,this);
+
+    lua_pushcclosure(state,add_component_lua_lua,"add_component_lua_lua",2);
+
+    lua_setfield(state,-2,"add_component_lua");
+
     #pragma endregion
 }
 
@@ -220,23 +229,11 @@ std::function<std::unique_ptr<Component>()> LuaManager::get_component_from_regis
     return m_component_registry.at(component_name);
 }
 
-void print_name_registry(const std::unordered_map<std::string,std::string>& registry) {
-    
-
-    std::for_each(
-        registry.begin(),
-        registry.end(),
-        [](const std::pair<std::string,std::string>& el){
-            std::cout << el.first << " -> " << el.second << std::endl << std::endl;
-        }
-    );
-}
 std::string LuaManager::get_file_from_name_registry(const std::string &name)
 {
     try {
         std::cout << "called!!!" << std::endl;
-        print_name_registry(m_component_name_registry);
-        std::cout <<  "size:" <<m_component_name_registry.size() << std::endl;
+        std::cout <<  "size:" << m_component_name_registry.size() << std::endl;
         return m_component_name_registry.at(name);
     } catch (const std::out_of_range& error) {
         std::cout << "OUT OF RANGE ERROR!!!!!!!!! " << error.what() << std::endl;

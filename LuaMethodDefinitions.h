@@ -60,6 +60,22 @@ int has_component_lua_lua(lua_State* state) {
     lua_pushboolean(state,entity->has_lua_component(file));
     return 1;
 }
+
+int add_component_lua_lua(lua_State* state) {
+    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    LuaManager* manager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    if (!entity || !manager) {
+        std::cout << "entity or manager is null in add component lua lua";
+        return 0;
+    }
+
+    const char* compname = lua_tostring(state,-1);
+    entity->add_lua_component(manager->get_file_from_name_registry(compname));
+    
+    return 0;
+}
 int add_component_lua_cpp(lua_State* state) {
     Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
 

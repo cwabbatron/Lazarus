@@ -13,3 +13,5 @@ FetchContent_Declare(Luau
 FetchContent_MakeAvailable(Luau)
 
 target_link_libraries(Lazarus PRIVATE Luau.VM Luau.Compiler)
+target_compile_options(Lazarus PRIVATE -fsanitize=address)
+target_link_options(Lazarus PRIVATE -fsanitize=address)

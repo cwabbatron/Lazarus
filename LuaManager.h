@@ -50,11 +50,21 @@ class LuaManager {
         }
 
         std::string get_file_from_name_registry(const std::string& name);
+
+        void add_to_component_name_registry(const std::string& name, const std::string& file) {
+            m_component_name_registry.insert({name,file});
+        };
+
+        void add_to_component_name_registry(const std::string& name) {
+            m_component_name_registry.insert({name,std::string("/home/arthur/projs/Lazarus/scripts/") + name});
+        }
+        
     private:
         
         
         lua_State* state = nullptr;
         std::unordered_map<std::string,int> m_component_table_references;
         std::unordered_map<std::string,std::function<std::unique_ptr<Component>()>> m_component_registry;
+        //stores component names to files
         std::unordered_map<std::string,std::string> m_component_name_registry;
 };
