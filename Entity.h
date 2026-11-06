@@ -73,10 +73,14 @@ class Entity {
                     m_components.begin(),
                     m_components.end(),
                     [this](const std::unique_ptr<Component>& comp){
-                        comp->on_deattach(*this);
-                        return dynamic_cast<const T*>(comp.get()) != nullptr;
+                        const bool should_remove = dynamic_cast<const T*>(comp.get()) != nullptr;
+                        if (should_remove) {
+                            comp->on_deattach(*this);
+                        }
+                        return should_remove;
                     }
-                )
+                ),
+                m_components.end()
             );
         };
 
@@ -100,12 +104,17 @@ class Entity {
 
         
         #pragma region Lua component functions
-
+        
         void add_lua_component(const std::string& file) {
             if (!has_lua_component(file)) {
                 m_lua_components.push_back(file);
             }
-            
+        }
+
+        void add_lua_component(const std::string& file,std::vector<std::string>& vec) {
+            if (!has_lua_component(file,vec)) {
+                vec.push_back(file);
+            }
         }
 
         bool has_lua_component(const std::string& file) {
@@ -120,8 +129,21 @@ class Entity {
             return it != m_lua_components.end() ? true : false;
         }
 
+        bool has_lua_component(const std::string& file,std::vector<std::string>& vec) {
+            std::vector<std::string>::iterator it = std::find_if(
+                vec.begin(),
+                vec.end(),
+                [file](const std::string& component_file){
+                    return component_file == file;
+                }
+            );
+
+            return it != vec.end() ? true : false;
+        }
         
         void remove_lua_component(const std::string& file) {
+            if (!has_lua_component(file)) { return; };
+
             m_lua_components.erase(
                 std::remove_if(
                     m_lua_components.begin(),
@@ -129,10 +151,27 @@ class Entity {
                     [file](const std::string& lua_component_file){
                         return file == lua_component_file;
                     }
-                )
+                ),
+                m_lua_components.end()
             );
         }
 
+        void remove_lua_component(const std::string& file,std::vector<std::string>& vec) {
+            if (!has_lua_component(file,vec)) { return; };
+
+            vec.erase(
+                std::remove_if(
+                    vec.begin(),
+                    vec.end(),
+                    [file](const std::string& lua_component_file){
+                        return file == lua_component_file;
+                    }
+                ),
+                vec.end()
+            );
+            
+            
+        }
         #pragma endregion
         
 

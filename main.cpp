@@ -18,11 +18,10 @@ int main(int, char**) {
     auto* ent = entmanager.add_entity();
     
     ent->add_lua_component("/home/arthur/projs/Lazarus/scripts/MyLuaComponent.luau");
-    
+    ent->add_lua_component("/home/arthur/projs/Lazarus/scripts/SecondaryComponent.luau");
     while (true) {
         ent->update(luamanager);
         
         std::this_thread::sleep_for(1000ms);
     }
-    std::cout << "Test, compiled on vscode";
 }

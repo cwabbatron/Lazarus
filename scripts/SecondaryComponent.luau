@@ -1,6 +1,5 @@
 component = {
     name = "SecondaryComponent",
-    value = 0,
     on_update = function(self)
         print("Secondary component running")
     end,

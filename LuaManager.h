@@ -56,7 +56,7 @@ class LuaManager {
         };
 
         void add_to_component_name_registry(const std::string& name) {
-            m_component_name_registry.insert({name,std::string("/home/arthur/projs/Lazarus/scripts/") + name});
+            m_component_name_registry.insert({name,std::string("/home/arthur/projs/Lazarus/scripts/") + name + ".luau"});
         }
         
     private:

@@ -5,11 +5,12 @@ component = {
     on_update = function(self)
         print("MyLuaComponent update")
         local attachment = self.get_attachment()
-        if not attachment:has_component_lua("SecondaryComponent") then
-            attachment:add_component_lua("SecondaryComponent");
-            print("added")
+
+        if attachment:has_component_lua("SecondaryComponent") then
+            attachment:remove_component_lua("SecondaryComponent");
+            print("removed")
         else
-            print("not added")
+            print("did not remove")
         end
     end,
     on_attach = function(self)

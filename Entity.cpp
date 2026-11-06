@@ -21,9 +21,12 @@ void Entity::update(LuaManager &luamanager)
         comp->update(*this);
     }
 
-    for (auto& luacomp : m_lua_components) {
-        luamanager.execute_lua_update_on_entity(*this, luacomp);
-    }
+    const std::vector<std::string> lua_components = m_lua_components;
+    for (const auto& luacomp : lua_components) {
+        if (has_lua_component(luacomp)) {
+            luamanager.execute_lua_update_on_entity(*this, luacomp);
+        }
+    } 
 }
 
 void Entity::remove_component_name(const std::string &name)
@@ -35,6 +38,7 @@ void Entity::remove_component_name(const std::string &name)
             [name](std::unique_ptr<Component>& component) {
                 return component->get_name() == name;
             }
-        )
+        ),
+        m_components.end()
     );
 }

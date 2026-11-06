@@ -12,8 +12,7 @@
 
 #include "LuaMethodDefinitions.h"
 #define COMPONENT_REGISTER(NAME) m_component_registry[#NAME] = []{ return std::make_unique<NAME>(); };
-//TODO: not hardcode this
-#define LUA_COMPONENT_REGISTER(NAME) add_to_component_name_registry(NAME,std::string("/home/arthur/projs/Lazarus/scripts/") + NAME);
+
 #pragma region Lua Execution
 
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
@@ -217,6 +216,13 @@ void LuaManager::convert_entity_to_table(Entity &entity)
 
     lua_setfield(state,-2,"add_component_lua");
 
+    lua_pushlightuserdata(state,&entity);
+    lua_pushlightuserdata(state,this);
+
+    lua_pushcclosure(state,remove_component_lua_lua,"remove_component_lua_lua",2);
+
+    lua_setfield(state,-2,"remove_component_lua");
+    
     #pragma endregion
 }
 
@@ -232,14 +238,11 @@ std::function<std::unique_ptr<Component>()> LuaManager::get_component_from_regis
 std::string LuaManager::get_file_from_name_registry(const std::string &name)
 {
     try {
-        std::cout << "called!!!" << std::endl;
-        std::cout <<  "size:" << m_component_name_registry.size() << std::endl;
         return m_component_name_registry.at(name);
     } catch (const std::out_of_range& error) {
-        std::cout << "OUT OF RANGE ERROR!!!!!!!!! " << error.what() << std::endl;
-        std::cout <<  "size:" <<m_component_name_registry.size() << std::endl;
-        auto str = new std::string("");
-        return *str;
+        std::cout << "Error in get file from name in registry, error: " << error.what();
+
+        return "";
     }
     
 }

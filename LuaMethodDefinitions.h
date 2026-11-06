@@ -64,7 +64,7 @@ int has_component_lua_lua(lua_State* state) {
 int add_component_lua_lua(lua_State* state) {
     Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
 
-    LuaManager* manager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+    LuaManager* manager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
 
     if (!entity || !manager) {
         std::cout << "entity or manager is null in add component lua lua";
@@ -72,8 +72,27 @@ int add_component_lua_lua(lua_State* state) {
     }
 
     const char* compname = lua_tostring(state,-1);
-    entity->add_lua_component(manager->get_file_from_name_registry(compname));
+    std::string filename = manager->get_file_from_name_registry(compname);
+    entity->add_lua_component(filename);
     
+    return 0;
+}
+
+int remove_component_lua_lua(lua_State* state) {
+    Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    LuaManager* manager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
+
+    if (!entity || !manager) {
+        std::cout << "entity or manager is null in remove_component_lua_lua";
+        return 0;
+    }
+
+    const char* compname = lua_tostring(state,-1);
+
+    std::string filename = manager->get_file_from_name_registry(compname);
+
+    entity->remove_lua_component(filename);
     return 0;
 }
 int add_component_lua_cpp(lua_State* state) {
