@@ -17,6 +17,6 @@ Small engine with a system based on ECS with lua component scripting.
 [x] run lua code
 [x] run lua components
 [x] run multiple lua components
-[-] make lua components be able to add & remove lua and c++ components
+[x] make lua components be able to add & remove lua and c++ components
 [ ] implement entity manager for lua
 [ ] use LuaJIT VM instead of Luau VM
