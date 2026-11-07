@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <memory>
 class Entity;
+class EntityManager;
 class LuaManager {
     public:
         LuaManager() {
@@ -33,9 +34,11 @@ class LuaManager {
 
         void execute_file(const std::string& directory, const std::string& chunkname = "chunk");
         
-        void execute_lua_update_on_entity(Entity& entity, const std::string& file);
+        void execute_lua_update_on_entity(Entity& entity, const std::string& file,EntityManager& entitymanager);
 
-        void define_globals();
+        void define_globals(EntityManager& manager);
+
+        void define_essential_globals();
 
         void attach_methods_to_self(const std::string& component_name,Entity& entity);
 

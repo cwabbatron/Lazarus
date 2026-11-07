@@ -9,6 +9,7 @@
 
 #include "nameComponent.h"
 #include "TestComponent2.h"
+#include "EntityManager.h"
 
 #include "LuaMethodDefinitions.h"
 #define COMPONENT_REGISTER(NAME) m_component_registry[#NAME] = []{ return std::make_unique<NAME>(); };
@@ -17,7 +18,7 @@
 
 void LuaManager::execute_string(const std::string &code, const std::string &chunkname)
 {
-    define_globals();
+    define_essential_globals();
     const char* csource = code.c_str();
 
    
@@ -54,9 +55,10 @@ void LuaManager::execute_file(const std::string &directory, const std::string &c
 
 
 
-void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string &file)
+void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string &file,EntityManager& entitymanager)
 {
-    
+    define_globals(entitymanager);
+       
     execute_file(file);
 
     
@@ -127,11 +129,31 @@ int print(lua_State* state) {
     std::cout << "\e[0;94m[LUA]: " << parameter << "\e[0m" << std::endl;
     return 0;
 }
-void LuaManager::define_globals()
+void LuaManager::define_globals(EntityManager& manager)
+{
+    
+    define_essential_globals();
+
+    lua_newtable(state);
+
+    lua_pushlightuserdata(state,&manager);
+    lua_pushlightuserdata(state,this);
+
+    lua_pushcclosure(state,entmanager_add_entity,"entmanager_add_entity",2);
+    lua_setfield(state,-2,"add_entity");
+
+
+    lua_pushlightuserdata(state,&manager);
+    lua_pushlightuserdata(state,this);
+
+    lua_pushcclosure(state,entmanager_has_entity,"entmanager_has_entity",2);
+    lua_setfield(state,-2,"has_entity");
+}
+
+void LuaManager::define_essential_globals()
 {
     lua_pushcfunction(state,print,"print");
     lua_setglobal(state,"print");
-   
 }
 
 void LuaManager::fill_registry()

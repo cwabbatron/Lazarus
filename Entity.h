@@ -14,11 +14,9 @@
 #define T_IS_COMPONENT(T) std::is_base_of_v<Component,T>
 
 
-// MASSIVE TODO: make lua components be able to erase and add each other
-//for example you cannot erase a lua component
 
 class LuaManager;
-
+class EntityManager;
 class Entity {
     public:
         Entity() {
@@ -194,7 +192,7 @@ class Entity {
         }
         #pragma endregion
         
-        void update(LuaManager& luamanager);
+        void update(LuaManager& luamanager,EntityManager& entmanager);
     private:
         std::vector<std::unique_ptr<Component>> m_components;
         std::vector<std::string> m_lua_components;

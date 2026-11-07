@@ -35,6 +35,20 @@ class EntityManager {
         std::vector<Entity>& get_entities() {
             return m_entities;
         }
+
+        bool has_entity(int id) {
+            std::vector<Entity>::iterator it = std::find_if(
+                m_entities.begin(),
+                m_entities.end(),
+                [id](const Entity& entity){
+                    return entity.get_id() == id;
+                }
+            );
+
+            return it != m_entities.end() ? true : false;
+        }
+
+        void update(LuaManager& manager);
     private:
         std::vector<Entity> m_entities;
         

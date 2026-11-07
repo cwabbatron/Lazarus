@@ -20,7 +20,7 @@ int main(int, char**) {
     ent->add_lua_component("/home/arthur/projs/Lazarus/scripts/MyLuaComponent.luau");
     ent->add_lua_component("/home/arthur/projs/Lazarus/scripts/SecondaryComponent.luau");
     while (true) {
-        ent->update(luamanager);
+        entmanager.update(luamanager);
         
         std::this_thread::sleep_for(1000ms);
     }

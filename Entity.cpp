@@ -15,7 +15,7 @@ void Entity::add_component_name(std::unordered_map<std::string, std::function<st
     add_component_unique_ptr(std::move(comp));
 }
 
-void Entity::update(LuaManager &luamanager)
+void Entity::update(LuaManager &luamanager,EntityManager& entmanager)
 {
     for (auto& comp : m_components) {
         comp->update(*this);
@@ -24,7 +24,7 @@ void Entity::update(LuaManager &luamanager)
     const std::vector<std::string> lua_components = m_lua_components;
     for (const auto& luacomp : lua_components) {
         if (has_lua_component(luacomp)) {
-            luamanager.execute_lua_update_on_entity(*this, luacomp);
+            luamanager.execute_lua_update_on_entity(*this, luacomp,entmanager);
         }
     } 
 }

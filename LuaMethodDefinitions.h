@@ -134,3 +134,39 @@ int remove_component_lua_cpp(lua_State* state) {
 
     return 0;
 }
+
+int entmanager_add_entity(lua_State* state) {
+    EntityManager* manager = static_cast<EntityManager*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    LuaManager* luamanager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
+
+    if (!manager || !luamanager) {
+        std::cout << "LuaManager or entity manager is null in entmanager add entity";
+        return 0;
+    }
+
+    Entity* ent = manager->add_entity();
+
+    if (!ent) {
+        lua_pushnil(state);
+        return 1;
+    }
+
+    luamanager->convert_entity_to_table(*ent);
+    return 1;
+}
+
+int entmanager_has_entity(lua_State* state) {
+    EntityManager* manager = static_cast<EntityManager*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    LuaManager* luamanager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
+
+    if (!manager || !luamanager) {
+        std::cout << "LuaManager or entity manager is null in entmanager add entity";
+        return 0;
+    }
+
+    int id = lua_tointeger(state,-1);
+    lua_pushboolean(state,manager->has_entity(id));
+    return 1;
+}
