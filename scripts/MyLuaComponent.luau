@@ -1,16 +1,24 @@
 
 component = {
     name = "MyLuaComponent",
-    value = 0,
+    id = 0,
     on_update = function(self)
         print("MyLuaComponent update")
-        local attachment = self.get_attachment()
+        
 
-        if attachment:has_component_lua("SecondaryComponent") then
-            attachment:remove_component_lua("SecondaryComponent");
-            print("removed")
+        
+            
+        local entity = EntityManager.add_entity()
+            
+        self.id = entity.get_id()
+        
+        entity.add_component_cpp("NameComponent")
+
+        print("Checking component add on created entity.")
+        if not entity.has_component_cpp("NameComponent") then
+            print("Failed! we dont have NameComponent")
         else
-            print("did not remove")
+            print("SUCCESS! we have NameComponent")
         end
     end,
     on_attach = function(self)

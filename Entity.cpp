@@ -5,7 +5,7 @@
 
 void Entity::add_component_name(std::unordered_map<std::string, std::function<std::unique_ptr<Component>()>> &registry, const std::string &name)
 {
-    std::cout << "Name passed: " << name << "\n";
+    
     
     
     std::unique_ptr<Component> comp = registry.at(name)();

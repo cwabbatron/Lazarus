@@ -58,7 +58,7 @@ void LuaManager::execute_file(const std::string &directory, const std::string &c
 void LuaManager::execute_lua_update_on_entity(Entity &entity, const std::string &file,EntityManager& entitymanager)
 {
     define_globals(entitymanager);
-       
+
     execute_file(file);
 
     
@@ -148,6 +148,8 @@ void LuaManager::define_globals(EntityManager& manager)
 
     lua_pushcclosure(state,entmanager_has_entity,"entmanager_has_entity",2);
     lua_setfield(state,-2,"has_entity");
+
+    lua_setglobal(state,"EntityManager");
 }
 
 void LuaManager::define_essential_globals()

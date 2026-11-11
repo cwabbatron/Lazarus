@@ -9,39 +9,44 @@ class EntityManager {
     public:
 
 
+        EntityManager() {
+            //TODO: not do this
+            m_entities.reserve(MAX_ENTITIES);
+        }
         Entity* add_entity() {
-            if (m_entities.size() + 1 > 1024) [[unlikely]] {
+            if (m_entities.size() + 1 > MAX_ENTITIES) {
                 std::cout << "ERROR!! too many entities";
                 return nullptr;
             }
-            return &m_entities.emplace_back(m_entities.size() + 1);
+            std::unique_ptr<Entity> ent = std::make_unique<Entity>(m_entities.size() + 1);
+
+            return m_entities.emplace_back(std::move(ent)).get();
         }
 
         void remove_entity(unsigned int id) {
-            m_entities.erase(
-                std::remove_if(
-                    m_entities.begin(),
-                    m_entities.end(),
-                    [id](const Entity& entity){
-                        return entity.get_id() == id;
-                    }
-                )
+            const auto new_end = std::remove_if(
+                m_entities.begin(),
+                m_entities.end(),
+                [id](const std::unique_ptr<Entity>& entity) {
+                    return entity->get_id() == id;
+                }
             );
+            m_entities.erase(new_end, m_entities.end());
         }
 
-        const std::vector<Entity>& get_entities() const {
+        const std::vector<std::unique_ptr<Entity>>& get_entities() const {
             return m_entities;
         }
-        std::vector<Entity>& get_entities() {
+        std::vector<std::unique_ptr<Entity>>& get_entities() {
             return m_entities;
         }
 
         bool has_entity(int id) {
-            std::vector<Entity>::iterator it = std::find_if(
+            std::vector<std::unique_ptr<Entity>>::iterator it = std::find_if(
                 m_entities.begin(),
                 m_entities.end(),
-                [id](const Entity& entity){
-                    return entity.get_id() == id;
+                [id](const std::unique_ptr<Entity>& entity){
+                    return entity->get_id() == id;
                 }
             );
 
@@ -50,6 +55,6 @@ class EntityManager {
 
         void update(LuaManager& manager);
     private:
-        std::vector<Entity> m_entities;
+        std::vector<std::unique_ptr<Entity>> m_entities;
         
 };

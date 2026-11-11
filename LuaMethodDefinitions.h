@@ -7,6 +7,9 @@
 
 #include "LuaManager.h"
 
+//TODO: make functions push nil
+
+
 int get_attachment_lua(lua_State* state) {
     Entity* entity = static_cast<Entity*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
 
@@ -104,6 +107,7 @@ int add_component_lua_cpp(lua_State* state) {
 
     if (!entity) {
         std::cout << "entity is null in add_component_lua";
+        
         return 0;
     };
 
@@ -169,4 +173,19 @@ int entmanager_has_entity(lua_State* state) {
     int id = lua_tointeger(state,-1);
     lua_pushboolean(state,manager->has_entity(id));
     return 1;
+}
+//TODO: make this return a boolean if there is no entity to remove
+int entmanager_remove_entity(lua_State* state) {
+    EntityManager* manager = static_cast<EntityManager*>(lua_tolightuserdata(state,lua_upvalueindex(1)));
+
+    LuaManager* luamanager = static_cast<LuaManager*>(lua_tolightuserdata(state,lua_upvalueindex(2)));
+
+    if (!manager || !luamanager) {
+        std::cout << "LuaManager or entity manager is null in entmanager add entity";
+        return 0;
+    }
+    int id = lua_tointeger(state,-1);
+    manager->remove_entity(id);
+
+    return 0;
 }
